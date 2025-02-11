@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "sevsuperblaster:block/blaster_bench"
+    },
+    "facing=south": {
+      "model": "sevsuperblaster:block/blaster_bench",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "sevsuperblaster:block/blaster_bench",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "sevsuperblaster:block/blaster_bench",
+      "y": 270
+    }
+  }
+}

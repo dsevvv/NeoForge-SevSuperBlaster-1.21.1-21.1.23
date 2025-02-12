@@ -25,14 +25,16 @@ public class BlasterBenchBlock extends HorizontalDirectionalBlock {
 
     private static final VoxelShape SHAPE_NORTH;
     private static final VoxelShape SHAPE_SOUTH;
-    private static final VoxelShape SHAPE_EAST;
     private static final VoxelShape SHAPE_WEST;
+    private static final VoxelShape SHAPE_EAST;
 
 
     public BlasterBenchBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(PART, BedPart.FOOT).setValue(OCCUPIED, false));
     }
+
+
 
     //ensuring block to right of placing location is air
     //had to be slightly adjusted from BedBlock
@@ -58,10 +60,10 @@ public class BlasterBenchBlock extends HorizontalDirectionalBlock {
                 return SHAPE_SOUTH;
             }
             case WEST -> {
-                return SHAPE_EAST;
+                return SHAPE_WEST;
             }
             default -> {
-                return SHAPE_WEST;
+                return SHAPE_EAST;
             }
         }
     }
@@ -102,7 +104,7 @@ public class BlasterBenchBlock extends HorizontalDirectionalBlock {
         OCCUPIED = BlockStateProperties.OCCUPIED;
         SHAPE_NORTH = Block.box(0.0D, 0.0D, 0.0D, 32.0D, 16.0D, 16.0D);
         SHAPE_SOUTH = Block.box(-16.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
-        SHAPE_EAST = Block.box(0.0D, 0.0D, -16.0D, 16.0D, 16.0D, 16.0D);
-        SHAPE_WEST = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 32.0D);
+        SHAPE_WEST = Block.box(0.0D, 0.0D, -16.0D, 16.0D, 16.0D, 16.0D);
+        SHAPE_EAST = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 32.0D);
     }
 }

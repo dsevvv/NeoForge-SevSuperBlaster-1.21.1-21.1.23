@@ -1,7 +1,13 @@
 package ca.dsevvv.sevsuperblaster;
 
 import ca.dsevvv.sevsuperblaster.block.BlasterBenchBlock;
+import ca.dsevvv.sevsuperblaster.entity.client.GunshotProjectileRenderer;
+import ca.dsevvv.sevsuperblaster.entity.projectile.GunshotProjectile;
 import ca.dsevvv.sevsuperblaster.item.SuperBlasterItem;
+import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -41,14 +47,16 @@ public class SevSuperBlaster
 
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
+    public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, MODID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
     public static final DeferredBlock<Block> BLASTER_BENCH = registerBlock("blaster_bench", () -> new BlasterBenchBlock(BlockBehaviour.Properties.of().noOcclusion()));
     public static final DeferredItem<Item> SUPER_BLASTER = ITEMS.register("super_blaster", () -> new SuperBlasterItem(new Item.Properties()));
+    public static final Supplier<EntityType<GunshotProjectile>> GUNSHOT = ENTITIES.register("gunshot", () -> EntityType.Builder.of(GunshotProjectile::new, MobCategory.CREATURE)
+            .sized(0.25f, 0.25f).build("gunshot"));
 
-    // Creates a creative tab with the id "examplemod:example_tab" for the example item, that is placed after the combat tab
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> BLASTER_TAB = CREATIVE_MODE_TABS.register("sevsuperblaster", () -> CreativeModeTab.builder()
-            .title(Component.translatable("itemGroup.sevsuperblaster")) //The language key for the title of your CreativeModeTab
+            .title(Component.translatable("itemGroup.sevsuperblaster"))
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .icon(() -> SUPER_BLASTER.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
@@ -63,6 +71,7 @@ public class SevSuperBlaster
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
+        ENTITIES.register(modEventBus);
 
         NeoForge.EVENT_BUS.register(this);
 
@@ -93,10 +102,11 @@ public class SevSuperBlaster
     @EventBusSubscriber(modid = MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents
     {
+
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
-
+            EntityRenderers.register(GUNSHOT.get(), GunshotProjectileRenderer::new);
         }
     }
 }

@@ -1,8 +1,8 @@
 package ca.dsevvv.sevsuperblaster;
 
 import ca.dsevvv.sevsuperblaster.block.BlasterBenchBlock;
-import ca.dsevvv.sevsuperblaster.entity.client.GunshotProjectileRenderer;
-import ca.dsevvv.sevsuperblaster.entity.projectile.GunshotProjectile;
+import ca.dsevvv.sevsuperblaster.entity.client.GunshotRenderer;
+import ca.dsevvv.sevsuperblaster.entity.projectile.Gunshot;
 import ca.dsevvv.sevsuperblaster.item.SuperBlasterItem;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -52,7 +52,8 @@ public class SevSuperBlaster
 
     public static final DeferredBlock<Block> BLASTER_BENCH = registerBlock("blaster_bench", () -> new BlasterBenchBlock(BlockBehaviour.Properties.of().noOcclusion()));
     public static final DeferredItem<Item> SUPER_BLASTER = ITEMS.register("super_blaster", () -> new SuperBlasterItem(new Item.Properties()));
-    public static final Supplier<EntityType<GunshotProjectile>> GUNSHOT = ENTITIES.register("gunshot", () -> EntityType.Builder.of(GunshotProjectile::new, MobCategory.CREATURE)
+    public static final DeferredItem<Item> GUNSHOT_ITEM = ITEMS.register("gunshot", () -> new Item(new Item.Properties()));
+    public static final Supplier<EntityType<Gunshot>> GUNSHOT = ENTITIES.register("gunshot", () -> EntityType.Builder.of(Gunshot::new, MobCategory.CREATURE)
             .sized(0.25f, 0.25f).build("gunshot"));
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> BLASTER_TAB = CREATIVE_MODE_TABS.register("sevsuperblaster", () -> CreativeModeTab.builder()
@@ -62,6 +63,7 @@ public class SevSuperBlaster
             .displayItems((parameters, output) -> {
                 output.accept(SUPER_BLASTER.get());
                 output.accept(BLASTER_BENCH.get());
+                output.accept(GUNSHOT_ITEM.get());
             }).build());
 
     public SevSuperBlaster(IEventBus modEventBus, ModContainer modContainer)
@@ -106,7 +108,7 @@ public class SevSuperBlaster
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
-            EntityRenderers.register(GUNSHOT.get(), GunshotProjectileRenderer::new);
+            EntityRenderers.register(GUNSHOT.get(), GunshotRenderer::new);
         }
     }
 }

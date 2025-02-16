@@ -8,11 +8,13 @@ import net.minecraft.client.particle.TextureSheetParticle;
 public class BoomParticle extends TextureSheetParticle {
     private final SpriteSet spriteSet;
 
-    public BoomParticle(ClientLevel level, double x, double y, double z, SpriteSet spriteSet) {
+    public BoomParticle(ClientLevel level, double x, double y, double z, double vX, double vY, double vZ, SpriteSet spriteSet) {
         super(level, x, y, z);
         this.spriteSet = spriteSet;
-        this.gravity = 0.0F;
+        this.gravity = random.nextFloat() * 0.1F;
         this.lifetime = 30;
+        this.hasPhysics = true;
+        this.setParticleSpeed(vX, vY, vZ);
         this.setSpriteFromAge(spriteSet);
     }
 

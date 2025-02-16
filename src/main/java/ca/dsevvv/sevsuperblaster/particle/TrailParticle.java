@@ -11,7 +11,7 @@ public class TrailParticle extends TextureSheetParticle {
     public TrailParticle(ClientLevel level, double x, double y, double z, SpriteSet spriteSet) {
         super(level, x, y, z);
         this.spriteSet = spriteSet;
-        this.gravity = 0.2F;
+        this.gravity = 0.1F;
         this.lifetime = 10;
         this.setSpriteFromAge(spriteSet);
     }

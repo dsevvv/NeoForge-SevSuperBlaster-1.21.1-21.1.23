@@ -17,6 +17,6 @@ public class SparkParticleProvider implements ParticleProvider<SimpleParticleTyp
 
     @Override
     public @Nullable Particle createParticle(SimpleParticleType simpleParticleType, ClientLevel clientLevel, double x, double y, double z, double vX, double vY, double vZ) {
-        return new SparkParticle(clientLevel, x, y, z, spriteSet);
+        return new SparkParticle(clientLevel, x, y, z, vX, vY, vZ, spriteSet);
     }
 }

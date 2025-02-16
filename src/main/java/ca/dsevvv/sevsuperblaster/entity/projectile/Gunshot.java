@@ -19,7 +19,6 @@ import net.minecraft.world.phys.HitResult;
 public class Gunshot extends AbstractArrow {
 
     private LivingEntity currentTarget;
-    private int killTick;
     private int damage;
     private int explosionSize;
     private int heal;
@@ -29,7 +28,6 @@ public class Gunshot extends AbstractArrow {
         super(entityType, level);
         this.setNoGravity(true);
         currentTarget = findTarget();
-        killTick = 101;
 
         if(this.getOwner() != null){
 //            damage = setDamage();
@@ -88,14 +86,30 @@ public class Gunshot extends AbstractArrow {
         kill();
     }
 
-    private void explosionParticles(){
-        for (int i = 0; i < 20; i++) {
-            level().addAlwaysVisibleParticle(SevSuperBlaster.SPARK_PARTICLE.get(),
-                    getX() + randomOffset(), getY() + randomOffset(), getZ() + randomOffset(),
-                    0f, 0f, 0f);
-            level().addAlwaysVisibleParticle(SevSuperBlaster.BOOM_PARTICLE.get(),
-                    getX() + randomOffset(), getY() + randomOffset(), getZ() + randomOffset(),
-                    0f, 0f, 0f);
+    private void explosionParticles() {
+        for (int ring = 0; ring < 3; ring++) { // Create 3 rings
+            double ringRadius = (ring + 1) * 0.5; // Increase radius for each ring
+            for (int i = 0; i < 12; i++) { // 12 particles per ring for a star effect
+                double angle = Math.toRadians(i * 30); // Spread particles evenly in the ring
+                double xRing = Math.cos(angle) * ringRadius;
+                double zRing = Math.sin(angle) * ringRadius;
+
+                // Add SPARK_PARTICLE in a ring
+                level().addAlwaysVisibleParticle(SevSuperBlaster.BOOM_PARTICLE.get(),
+                        getX() + xRing, getY() + (ring * 0.2), getZ() + zRing,
+                        0f,0f,0f);
+            }
+
+            // Create a "star explosion" effect for each ring
+            for (int j = 0; j < 6; j++) { // 6 points for the star
+                double starAngle = Math.toRadians(j * 60); // Spread star points evenly
+                double xStar = Math.cos(starAngle) * (ringRadius + 0.5);
+                double zStar = Math.sin(starAngle) * (ringRadius + 0.5);
+
+                level().addAlwaysVisibleParticle(SevSuperBlaster.SPARK_PARTICLE.get(),
+                        getX() + xStar, getY() + randomOffset() + (ring * 0.2), getZ() + zStar,
+                        0f,0f,0f);
+            }
         }
     }
 

@@ -17,6 +17,6 @@ public class BoomParticleProvider implements ParticleProvider<SimpleParticleType
 
     @Override
     public @Nullable Particle createParticle(SimpleParticleType simpleParticleType, ClientLevel clientLevel, double x, double y, double z, double vX, double vY, double vZ) {
-        return new BoomParticle(clientLevel, x, y, z, spriteSet);
+        return new BoomParticle(clientLevel, x, y, z, vX, vY, vZ, spriteSet);
     }
 }

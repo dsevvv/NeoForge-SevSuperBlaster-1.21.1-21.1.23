@@ -24,13 +24,14 @@ public class SuperBlasterItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
-        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ARROW_SHOOT, SoundSource.NEUTRAL, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
+        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_RETURN, SoundSource.PLAYERS, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
         if (!level.isClientSide) {
             Gunshot shot = new Gunshot(SevSuperBlaster.GUNSHOT.get(), level);
+            shot.setOwner(player);
             shot.setNoGravity(true);
-            shot.setPos(player.getX(), player.getEyeY() - 0.10000000149011612D, player.getZ());
+            shot.setPos(player.getX(), player.getEyeY(), player.getZ());
             Vec3 lookDirection = player.getLookAngle();
-            shot.shoot(lookDirection.x, lookDirection.y, lookDirection.z, 0.6F, 0.0F);
+            shot.shoot(lookDirection.x, lookDirection.y, lookDirection.z, 1F, 0.0F);
             level.addFreshEntity(shot);
         }
 

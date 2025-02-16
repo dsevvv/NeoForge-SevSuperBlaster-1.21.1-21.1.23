@@ -4,10 +4,16 @@ import ca.dsevvv.sevsuperblaster.block.BlasterBenchBlock;
 import ca.dsevvv.sevsuperblaster.entity.client.GunshotRenderer;
 import ca.dsevvv.sevsuperblaster.entity.projectile.Gunshot;
 import ca.dsevvv.sevsuperblaster.item.SuperBlasterItem;
+import ca.dsevvv.sevsuperblaster.particle.provider.BoomParticleProvider;
+import ca.dsevvv.sevsuperblaster.particle.provider.SparkParticleProvider;
+import ca.dsevvv.sevsuperblaster.particle.provider.TrailParticleProvider;
 import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -48,6 +54,7 @@ public class SevSuperBlaster
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, MODID);
+    public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(BuiltInRegistries.PARTICLE_TYPE, MODID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
     public static final DeferredBlock<Block> BLASTER_BENCH = registerBlock("blaster_bench", () -> new BlasterBenchBlock(BlockBehaviour.Properties.of().noOcclusion()));
@@ -55,6 +62,9 @@ public class SevSuperBlaster
     public static final DeferredItem<Item> GUNSHOT_ITEM = ITEMS.register("gunshot", () -> new Item(new Item.Properties()));
     public static final Supplier<EntityType<Gunshot>> GUNSHOT = ENTITIES.register("gunshot", () -> EntityType.Builder.of(Gunshot::new, MobCategory.CREATURE)
             .sized(0.25f, 0.25f).build("gunshot"));
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> TRAIL_PARTICLE = PARTICLE_TYPES.register("super_blaster_trail", () -> new SimpleParticleType(false));
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> BOOM_PARTICLE = PARTICLE_TYPES.register("boom", () -> new SimpleParticleType(false));
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SPARK_PARTICLE = PARTICLE_TYPES.register("spark", () -> new SimpleParticleType(false));
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> BLASTER_TAB = CREATIVE_MODE_TABS.register("sevsuperblaster", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.sevsuperblaster"))
@@ -72,8 +82,9 @@ public class SevSuperBlaster
 
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
-        CREATIVE_MODE_TABS.register(modEventBus);
         ENTITIES.register(modEventBus);
+        CREATIVE_MODE_TABS.register(modEventBus);
+        PARTICLE_TYPES.register(modEventBus);
 
         NeoForge.EVENT_BUS.register(this);
 
@@ -109,6 +120,13 @@ public class SevSuperBlaster
         public static void onClientSetup(FMLClientSetupEvent event)
         {
             EntityRenderers.register(GUNSHOT.get(), GunshotRenderer::new);
+        }
+
+        @SubscribeEvent
+        public static void registerParticleProvider(RegisterParticleProvidersEvent event){
+            event.registerSpriteSet(TRAIL_PARTICLE.get(), TrailParticleProvider::new);
+            event.registerSpriteSet(BOOM_PARTICLE.get(), BoomParticleProvider::new);
+            event.registerSpriteSet(SPARK_PARTICLE.get(), SparkParticleProvider::new);
         }
     }
 }

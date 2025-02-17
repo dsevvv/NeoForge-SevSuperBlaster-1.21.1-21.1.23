@@ -7,7 +7,9 @@ import ca.dsevvv.sevsuperblaster.item.SuperBlasterItem;
 import ca.dsevvv.sevsuperblaster.particle.provider.BoomParticleProvider;
 import ca.dsevvv.sevsuperblaster.particle.provider.SparkParticleProvider;
 import ca.dsevvv.sevsuperblaster.particle.provider.TrailParticleProvider;
+import com.mojang.serialization.Codec;
 import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -56,15 +58,26 @@ public class SevSuperBlaster
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, MODID);
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(BuiltInRegistries.PARTICLE_TYPE, MODID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
+    public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENT_TYPES = DeferredRegister.createDataComponents(MODID);
 
-    public static final DeferredBlock<Block> BLASTER_BENCH = registerBlock("blaster_bench", () -> new BlasterBenchBlock(BlockBehaviour.Properties.of().noOcclusion()));
-    public static final DeferredItem<Item> SUPER_BLASTER = ITEMS.register("super_blaster", () -> new SuperBlasterItem(new Item.Properties()));
-    public static final DeferredItem<Item> GUNSHOT_ITEM = ITEMS.register("gunshot", () -> new Item(new Item.Properties()));
-    public static final Supplier<EntityType<Gunshot>> GUNSHOT = ENTITIES.register("gunshot", () -> EntityType.Builder.of(Gunshot::new, MobCategory.CREATURE)
-            .sized(0.25f, 0.25f).build("gunshot"));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> TRAIL_PARTICLE = PARTICLE_TYPES.register("super_blaster_trail", () -> new SimpleParticleType(false));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> BOOM_PARTICLE = PARTICLE_TYPES.register("boom", () -> new SimpleParticleType(false));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SPARK_PARTICLE = PARTICLE_TYPES.register("spark", () -> new SimpleParticleType(false));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> BLASTER_DMG = DATA_COMPONENT_TYPES.register("blaster_dmg", () -> DataComponentType.<Integer>builder().persistent(Codec.INT).build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> BLASTER_EXPLOSION_SIZE = DATA_COMPONENT_TYPES.register("blaster_explosion_size", () -> DataComponentType.<Integer>builder().persistent(Codec.INT).build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> BLASTER_HEAL_ON_KILL = DATA_COMPONENT_TYPES.register("blaster_heal_on_kill", () -> DataComponentType.<Integer>builder().persistent(Codec.INT).build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Float>> BLASTER_HOMING_SPEED = DATA_COMPONENT_TYPES.register("blaster_homing_speed", () -> DataComponentType.<Float>builder().persistent(Codec.FLOAT).build());
+
+    public static final DeferredBlock<Block> BLASTER_BENCH = registerBlock("blaster_bench", () -> new BlasterBenchBlock(BlockBehaviour.Properties.of().noOcclusion()));
+    public static final DeferredItem<Item> SUPER_BLASTER = ITEMS.register("super_blaster", () -> new SuperBlasterItem(new Item.Properties()
+            .component(BLASTER_DMG, SuperBlasterItem.DEFAULT_PROJECTILE_DAMAGE)
+            .component(BLASTER_EXPLOSION_SIZE, SuperBlasterItem.DEFAULT_EXPLOSION_SIZE)
+            .component(BLASTER_HEAL_ON_KILL, SuperBlasterItem.DEFAULT_HEAL_ON_KILL)
+            .component(BLASTER_HOMING_SPEED, SuperBlasterItem.DEFAULT_HOMING_SPEED)));
+    public static final DeferredItem<Item> GUNSHOT_ITEM = ITEMS.register("gunshot", () -> new Item(new Item.Properties()));
+    public static final Supplier<EntityType<Gunshot>> GUNSHOT = ENTITIES.register("gunshot", () -> EntityType.Builder.of(Gunshot::new, MobCategory.CREATURE)
+            .sized(0.25f, 0.25f).build("gunshot"));
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> BLASTER_TAB = CREATIVE_MODE_TABS.register("sevsuperblaster", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.sevsuperblaster"))
@@ -85,6 +98,7 @@ public class SevSuperBlaster
         ENTITIES.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
         PARTICLE_TYPES.register(modEventBus);
+        DATA_COMPONENT_TYPES.register(modEventBus);
 
         NeoForge.EVENT_BUS.register(this);
 

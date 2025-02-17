@@ -1,8 +1,6 @@
 package ca.dsevvv.sevsuperblaster.entity.projectile;
 
 import ca.dsevvv.sevsuperblaster.SevSuperBlaster;
-import com.mojang.logging.LogUtils;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -10,14 +8,15 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 
 public class Gunshot extends AbstractArrow {
-
     private LivingEntity currentTarget;
     private int damage;
     private int explosionSize;
@@ -28,23 +27,6 @@ public class Gunshot extends AbstractArrow {
         super(entityType, level);
         this.setNoGravity(true);
         currentTarget = findTarget();
-
-        if(this.getOwner() != null){
-//            damage = setDamage();
-//            explosionSize = setExplosionSize();
-//            heal = setHeal();
-//            homingSpeed = setHomingSpeed();
-            damage = 1;
-            explosionSize = 1;
-            heal = 1;
-            homingSpeed = 0.2f;
-        }
-        else{
-            damage = 1;
-            explosionSize = 1;
-            heal = 1;
-            homingSpeed = 0.2f;
-        }
     }
 
     @Override
@@ -82,27 +64,29 @@ public class Gunshot extends AbstractArrow {
     }
 
     private void explode() {
-        level().explode(this.getOwner(), getX(), getY(), getZ(), 3.0f, Level.ExplosionInteraction.TNT);
+        final float SIZE_SCALAR = 2.0f;
+
+        level().explode(this, null, new GunshotDamageCalculator(), getX(), getY(), getZ(), explosionSize * SIZE_SCALAR, false, Level.ExplosionInteraction.TNT);
         kill();
     }
 
     private void explosionParticles() {
-        for (int ring = 0; ring < 3; ring++) { // Create 3 rings
-            double ringRadius = (ring + 1) * 0.5; // Increase radius for each ring
-            for (int i = 0; i < 12; i++) { // 12 particles per ring for a star effect
-                double angle = Math.toRadians(i * 30); // Spread particles evenly in the ring
+        for (int ring = 0; ring < 3; ring++) {          // Create 3 rings
+            double ringRadius = (ring + 1) * 0.5;       // Increase radius for each ring
+            for (int i = 0; i < 12; i++) {              // 12 particles per ring for a star effect
+                double angle = Math.toRadians(i * 30);  // Spread particles evenly in the ring
                 double xRing = Math.cos(angle) * ringRadius;
                 double zRing = Math.sin(angle) * ringRadius;
 
-                // Add SPARK_PARTICLE in a ring
+                                                        // Add BOOM_PARTICLE in a ring
                 level().addAlwaysVisibleParticle(SevSuperBlaster.BOOM_PARTICLE.get(),
                         getX() + xRing, getY() + (ring * 0.2), getZ() + zRing,
                         0f,0f,0f);
             }
 
-            // Create a "star explosion" effect for each ring
-            for (int j = 0; j < 6; j++) { // 6 points for the star
-                double starAngle = Math.toRadians(j * 60); // Spread star points evenly
+                                                            // Create a "star explosion" effect for each ring
+            for (int j = 0; j < 6; j++) {                   // 6 points for the star
+                double starAngle = Math.toRadians(j * 60);  // Spread star points evenly
                 double xStar = Math.cos(starAngle) * (ringRadius + 0.5);
                 double zStar = Math.sin(starAngle) * (ringRadius + 0.5);
 
@@ -114,8 +98,8 @@ public class Gunshot extends AbstractArrow {
     }
 
     private void trailParticles(){
-        double angle = tickCount * 0.3; // Increment angle over time for spiral effect
-        double radius = 0.4; // Radius of the spiral
+        double angle = tickCount * 0.3;             // Increment angle over time for spiral effect
+        double radius = 0.4;                        // Radius of the spiral
         double xDirection = getDeltaMovement().x();
         double yDirection = getDeltaMovement().y();
         double zDirection = getDeltaMovement().z();
@@ -126,7 +110,7 @@ public class Gunshot extends AbstractArrow {
         yDirection /= magnitude;
         zDirection /= magnitude;
 
-        // Rotate the offsets around the direction of travel
+        // Rotate the offsets around the direction of travel (somewhat bugged, certain edge cases not working correctly, but the bugged effect also looks cool, so I figured I'd move on to larger issues.)
         double sinAngle = Math.sin(angle);
         double cosAngle = Math.cos(angle);
 
@@ -139,7 +123,7 @@ public class Gunshot extends AbstractArrow {
     }
 
     private double randomOffset() {
-        return (random.nextDouble() - 0.5) * 5.0;//-2.5 to +2.5
+        return (random.nextDouble() - 0.5) * 5.0;
     }
 
     private LivingEntity findTarget(){
@@ -147,39 +131,21 @@ public class Gunshot extends AbstractArrow {
                 getX(), getY(), getZ(), getBoundingBox().inflate(20));
     }
 
-//    private int setDamage(){
-//        Player owner = (Player) this.getOwner();
-//        ItemStack superBlaster = owner.getMainHandItem();
-//
-//        if(superBlaster.getItem() instanceof SuperBlasterItem){
-//            return superBlaster.;
-//        }
-//
-//        return null;
-//    }
-//
-//    private int setExplosionSize(){
-//        Player owner = (Player) this.getOwner();
-//        ItemStack superBlaster = owner.getMainHandItem();
-//
-//
-//        return null;
-//    }
-//
-//    private int setHeal(){
-//        Player owner = (Player) this.getOwner();
-//        ItemStack superBlaster = owner.getMainHandItem();
-//
-//
-//        return null;
-//    }
-//
-//    private float setHomingSpeed(){
-//        Player owner = (Player) this.getOwner();
-//        ItemStack superBlaster = owner.getMainHandItem();
-//
-//        return null;
-//    }
+    public void setDamage(int damage){
+        this.damage = damage;
+    }
+
+    public void setExplosionSize(int explosionSize){
+        this.explosionSize = explosionSize;
+    }
+
+    public void setHeal(int heal){
+        this.heal = heal;
+    }
+
+    public void setHomingSpeed(float homingSpeed){
+        this.homingSpeed = homingSpeed;
+    }
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
@@ -204,5 +170,18 @@ public class Gunshot extends AbstractArrow {
     public void onClientRemoval() {
         explosionParticles();
         super.onClientRemoval();
+    }
+
+    private class GunshotDamageCalculator extends ExplosionDamageCalculator{
+        private static final float DAMAGE_SCALAR = 2.0f;
+
+        @Override
+        public float getEntityDamageAmount(Explosion explosion, Entity entity) {
+            float power = explosion.radius() * (damage * DAMAGE_SCALAR);
+            Vec3 vec3 = explosion.center();
+            double distance = Math.sqrt(entity.distanceToSqr(vec3)) / (double)power;
+            double bodyExposed = ((double)1.0F - distance) * (double)Explosion.getSeenPercent(vec3, entity);
+            return (float)((bodyExposed * bodyExposed + bodyExposed) / (double)2.0F * (double)7.0F * (double)power + (double)1.0F);
+        }
     }
 }

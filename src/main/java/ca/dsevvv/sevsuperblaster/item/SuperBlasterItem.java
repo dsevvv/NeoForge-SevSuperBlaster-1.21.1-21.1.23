@@ -3,18 +3,26 @@ package ca.dsevvv.sevsuperblaster.item;
 
 import ca.dsevvv.sevsuperblaster.SevSuperBlaster;
 import ca.dsevvv.sevsuperblaster.entity.projectile.Gunshot;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import java.util.List;
+
 public class SuperBlasterItem extends Item {
+    public static final int DEFAULT_PROJECTILE_DAMAGE = 1;
+    public static final int DEFAULT_EXPLOSION_SIZE = 1;
+    public static final int DEFAULT_HEAL_ON_KILL = 1;
+    public static final float DEFAULT_HOMING_SPEED = 0.1F;
 
 
     public SuperBlasterItem(Properties properties) {
@@ -24,9 +32,13 @@ public class SuperBlasterItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
-        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_RETURN, SoundSource.PLAYERS, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
+        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_RETURN, SoundSource.PLAYERS, 1.0F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
         if (!level.isClientSide) {
             Gunshot shot = new Gunshot(SevSuperBlaster.GUNSHOT.get(), level);
+            shot.setDamage(getProjectileDamage(itemstack));
+            shot.setExplosionSize(getExplosionSize(itemstack));
+            shot.setHeal(getHealOnKill(itemstack));
+            shot.setHomingSpeed(getHomingSpeed(itemstack));
             shot.setOwner(player);
             shot.setNoGravity(true);
             shot.setPos(player.getX(), player.getEyeY(), player.getZ());
@@ -39,31 +51,50 @@ public class SuperBlasterItem extends Item {
         return InteractionResultHolder.sidedSuccess(itemstack, level.isClientSide());
     }
 
-    public void setProjectileDamage(int projectileDamage) {
-        
+    public static void setProjectileDamage(ItemStack stack, int projectileDamage) {
+        stack.set(SevSuperBlaster.BLASTER_DMG, projectileDamage);
     }
-    public int getProjectileDamage() {
-        return 0;
+
+    public static int getProjectileDamage(ItemStack stack) {
+        return stack.get(SevSuperBlaster.BLASTER_DMG);
     }
     
-    public void setExplosionSize(int explosionSize){
-        
-    }
-    public int getExplosionSize(){
-        return 0;
+    public static void setExplosionSize(ItemStack stack, int explosionSize){
+        stack.set(SevSuperBlaster.BLASTER_EXPLOSION_SIZE, explosionSize);
     }
 
-    public void setHealOnKill(int explosionSize){
-
-    }
-    public int getHealOnKill(){
-        return 0;
+    public static int getExplosionSize(ItemStack stack){
+        return stack.get(SevSuperBlaster.BLASTER_EXPLOSION_SIZE);
     }
 
-    public void setHomingSpeed(){
-
+    public static void setHealOnKill(ItemStack stack, int healOnKill){
+        stack.set(SevSuperBlaster.BLASTER_HEAL_ON_KILL, healOnKill);
     }
-    public int getHomingSpeed(){
-        return 0;
+
+    public static int getHealOnKill(ItemStack stack){
+        return stack.get(SevSuperBlaster.BLASTER_HEAL_ON_KILL);
+    }
+
+    public static void setHomingSpeed(ItemStack stack, float homingSpeed){
+        stack.set(SevSuperBlaster.BLASTER_HOMING_SPEED, homingSpeed);
+    }
+
+    public static float getHomingSpeed(ItemStack stack){
+        return stack.get(SevSuperBlaster.BLASTER_HOMING_SPEED);
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        if(stack.get(SevSuperBlaster.BLASTER_DMG) != null
+        && stack.get(SevSuperBlaster.BLASTER_EXPLOSION_SIZE) != null
+        && stack.get(SevSuperBlaster.BLASTER_HEAL_ON_KILL) != null
+        && stack.get(SevSuperBlaster.BLASTER_HOMING_SPEED) != null){
+            tooltipComponents.add(Component.literal("Damage:            " + stack.get(SevSuperBlaster.BLASTER_DMG)).withColor(0xFF0000));
+            tooltipComponents.add(Component.literal("Explosion Size:   " + stack.get(SevSuperBlaster.BLASTER_EXPLOSION_SIZE)).withColor(0xFF0000));
+            tooltipComponents.add(Component.literal("Heal on Kill:       " + stack.get(SevSuperBlaster.BLASTER_HEAL_ON_KILL)).withColor(0xFF0000));
+            tooltipComponents.add(Component.literal("Homing Speed:   " + stack.get(SevSuperBlaster.BLASTER_HOMING_SPEED)).withColor(0xFF0000));
+        }
+
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
     }
 }

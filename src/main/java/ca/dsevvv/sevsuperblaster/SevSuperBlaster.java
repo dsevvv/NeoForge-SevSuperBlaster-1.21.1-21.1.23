@@ -64,6 +64,7 @@ public class SevSuperBlaster
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> BOOM_PARTICLE = PARTICLE_TYPES.register("boom", () -> new SimpleParticleType(false));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SPARK_PARTICLE = PARTICLE_TYPES.register("spark", () -> new SimpleParticleType(false));
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> BLASTER_LVL = DATA_COMPONENT_TYPES.register("blaster_lvl", () -> DataComponentType.<Integer>builder().persistent(Codec.INT).build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> BLASTER_DMG = DATA_COMPONENT_TYPES.register("blaster_dmg", () -> DataComponentType.<Integer>builder().persistent(Codec.INT).build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> BLASTER_EXPLOSION_SIZE = DATA_COMPONENT_TYPES.register("blaster_explosion_size", () -> DataComponentType.<Integer>builder().persistent(Codec.INT).build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> BLASTER_HEAL_ON_KILL = DATA_COMPONENT_TYPES.register("blaster_heal_on_kill", () -> DataComponentType.<Integer>builder().persistent(Codec.INT).build());
@@ -71,6 +72,7 @@ public class SevSuperBlaster
 
     public static final DeferredBlock<Block> BLASTER_BENCH = registerBlock("blaster_bench", () -> new BlasterBenchBlock(BlockBehaviour.Properties.of().noOcclusion()));
     public static final DeferredItem<Item> SUPER_BLASTER = ITEMS.register("super_blaster", () -> new SuperBlasterItem(new Item.Properties()
+            .component(BLASTER_LVL, SuperBlasterItem.DEFAULT_LEVEL)
             .component(BLASTER_DMG, SuperBlasterItem.DEFAULT_PROJECTILE_DAMAGE)
             .component(BLASTER_EXPLOSION_SIZE, SuperBlasterItem.DEFAULT_EXPLOSION_SIZE)
             .component(BLASTER_HEAL_ON_KILL, SuperBlasterItem.DEFAULT_HEAL_ON_KILL)

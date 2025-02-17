@@ -48,6 +48,7 @@ public class Gunshot extends AbstractArrow {
             }
 
             if (currentTarget != null && currentTarget.isAlive()) {
+                double homingScalar = 0.5;
                 double xDiff = currentTarget.getX() - getX();
                 double yDiff = currentTarget.getEyeY() - getY();
                 double zDiff = currentTarget.getZ() - getZ();
@@ -55,9 +56,9 @@ public class Gunshot extends AbstractArrow {
 
                 double speed = 0.6; // Base projectile speed factor
 
-                double xMotion = getDeltaMovement().x() + ((xDiff / distance * speed - getDeltaMovement().x()) * homingSpeed);
-                double yMotion = getDeltaMovement().y() + ((yDiff / distance * speed - getDeltaMovement().y()) * homingSpeed);
-                double zMotion = getDeltaMovement().z() + ((zDiff / distance * speed - getDeltaMovement().z()) * homingSpeed);
+                double xMotion = getDeltaMovement().x() + ((xDiff / distance * speed - getDeltaMovement().x()) * (homingSpeed * homingScalar));
+                double yMotion = getDeltaMovement().y() + ((yDiff / distance * speed - getDeltaMovement().y()) * (homingSpeed * homingScalar));
+                double zMotion = getDeltaMovement().z() + ((zDiff / distance * speed - getDeltaMovement().z()) * (homingSpeed * homingScalar));
 
                 setDeltaMovement(xMotion, yMotion, zMotion);
             }
@@ -151,7 +152,6 @@ public class Gunshot extends AbstractArrow {
     @Override
     protected void onHitEntity(EntityHitResult result) {
         Entity target = result.getEntity();
-
         if (target instanceof Monster) {
             explode();
         }
@@ -173,19 +173,6 @@ public class Gunshot extends AbstractArrow {
         super.onClientRemoval();
     }
 
-    private class GunshotDamageCalculator extends ExplosionDamageCalculator{
-        private static final float DAMAGE_SCALAR = 2.0f;
-
-        @Override
-        public float getEntityDamageAmount(Explosion explosion, Entity entity) {
-            float power = explosion.radius() * (damage * DAMAGE_SCALAR);
-            Vec3 vec3 = explosion.center();
-            double distance = Math.sqrt(entity.distanceToSqr(vec3)) / (double)power;
-            double bodyExposed = ((double)1.0F - distance) * (double)Explosion.getSeenPercent(vec3, entity);
-            return (float)((bodyExposed * bodyExposed + bodyExposed) / (double)2.0F * (double)7.0F * (double)power + (double)1.0F);
-        }
-    }
-
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         compound.putInt("Damage", damage);
@@ -204,5 +191,18 @@ public class Gunshot extends AbstractArrow {
         homingSpeed = compound.getFloat("HomingSpeed");
         currentTarget = (LivingEntity) level().getEntity(compound.getInt("Target"));
         super.readAdditionalSaveData(compound);
+    }
+
+    private class GunshotDamageCalculator extends ExplosionDamageCalculator{
+        private static final float DAMAGE_SCALAR = 2.0f;
+
+        @Override
+        public float getEntityDamageAmount(Explosion explosion, Entity entity) {
+            float power = explosion.radius() * (damage * DAMAGE_SCALAR);
+            Vec3 vec3 = explosion.center();
+            double distance = Math.sqrt(entity.distanceToSqr(vec3)) / (double)power;
+            double bodyExposed = ((double)1.0F - distance) * (double)Explosion.getSeenPercent(vec3, entity);
+            return (float)((bodyExposed * bodyExposed + bodyExposed) / (double)2.0F * (double)7.0F * (double)power + (double)1.0F);
+        }
     }
 }

@@ -19,6 +19,7 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 
 public class SuperBlasterItem extends Item {
+    public static final int DEFAULT_LEVEL = 1;
     public static final int DEFAULT_PROJECTILE_DAMAGE = 1;
     public static final int DEFAULT_EXPLOSION_SIZE = 1;
     public static final int DEFAULT_HEAL_ON_KILL = 1;
@@ -31,14 +32,14 @@ public class SuperBlasterItem extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        ItemStack itemstack = player.getItemInHand(hand);
+        ItemStack stack = player.getItemInHand(hand);
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_RETURN, SoundSource.PLAYERS, 1.0F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
         if (!level.isClientSide) {
             Gunshot shot = new Gunshot(SevSuperBlaster.GUNSHOT.get(), level);
-            shot.setDamage(getProjectileDamage(itemstack));
-            shot.setExplosionSize(getExplosionSize(itemstack));
-            shot.setHeal(getHealOnKill(itemstack));
-            shot.setHomingSpeed(getHomingSpeed(itemstack));
+            shot.setDamage(getProjectileDamage(stack));
+            shot.setExplosionSize(getExplosionSize(stack));
+            shot.setHeal(getHealOnKill(stack));
+            shot.setHomingSpeed(getHomingSpeed(stack));
             shot.setOwner(player);
             shot.setNoGravity(true);
             shot.setPos(player.getX(), player.getEyeY(), player.getZ());
@@ -48,7 +49,7 @@ public class SuperBlasterItem extends Item {
         }
 
         player.awardStat(Stats.ITEM_USED.get(this));
-        return InteractionResultHolder.sidedSuccess(itemstack, level.isClientSide());
+        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
     }
 
     public static void setProjectileDamage(ItemStack stack, int projectileDamage) {
@@ -85,14 +86,17 @@ public class SuperBlasterItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        if(stack.get(SevSuperBlaster.BLASTER_DMG) != null
+        if(stack.get(SevSuperBlaster.BLASTER_LVL) != null
+        && stack.get(SevSuperBlaster.BLASTER_DMG) != null
         && stack.get(SevSuperBlaster.BLASTER_EXPLOSION_SIZE) != null
         && stack.get(SevSuperBlaster.BLASTER_HEAL_ON_KILL) != null
         && stack.get(SevSuperBlaster.BLASTER_HOMING_SPEED) != null){
+            tooltipComponents.add(Component.literal("Level: " + stack.get(SevSuperBlaster.BLASTER_LVL)).withColor(0x00ffff));
+            tooltipComponents.add(Component.literal(""));
             tooltipComponents.add(Component.literal("Damage:            " + stack.get(SevSuperBlaster.BLASTER_DMG)).withColor(0xFF0000));
-            tooltipComponents.add(Component.literal("Explosion Size:   " + stack.get(SevSuperBlaster.BLASTER_EXPLOSION_SIZE)).withColor(0xFF0000));
-            tooltipComponents.add(Component.literal("Heal on Kill:       " + stack.get(SevSuperBlaster.BLASTER_HEAL_ON_KILL)).withColor(0xFF0000));
-            tooltipComponents.add(Component.literal("Homing Speed:   " + stack.get(SevSuperBlaster.BLASTER_HOMING_SPEED)).withColor(0xFF0000));
+            tooltipComponents.add(Component.literal("Explosion Size:   " + stack.get(SevSuperBlaster.BLASTER_EXPLOSION_SIZE)).withColor(0xffd700));
+            tooltipComponents.add(Component.literal("Heal on Kill:       " + stack.get(SevSuperBlaster.BLASTER_HEAL_ON_KILL)).withColor(0x00ff2e));
+            tooltipComponents.add(Component.literal("Homing Speed:   " + stack.get(SevSuperBlaster.BLASTER_HOMING_SPEED)).withColor(0xe514e2));
         }
 
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);

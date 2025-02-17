@@ -76,7 +76,7 @@ public class SevSuperBlaster
             .component(BLASTER_HEAL_ON_KILL, SuperBlasterItem.DEFAULT_HEAL_ON_KILL)
             .component(BLASTER_HOMING_SPEED, SuperBlasterItem.DEFAULT_HOMING_SPEED)));
     public static final DeferredItem<Item> GUNSHOT_ITEM = ITEMS.register("gunshot", () -> new Item(new Item.Properties()));
-    public static final Supplier<EntityType<Gunshot>> GUNSHOT = ENTITIES.register("gunshot", () -> EntityType.Builder.of(Gunshot::new, MobCategory.CREATURE)
+    public static final Supplier<EntityType<Gunshot>> GUNSHOT = ENTITIES.register("gunshot", () -> EntityType.Builder.of(Gunshot::new, MobCategory.MISC)
             .sized(0.25f, 0.25f).build("gunshot"));
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> BLASTER_TAB = CREATIVE_MODE_TABS.register("sevsuperblaster", () -> CreativeModeTab.builder()

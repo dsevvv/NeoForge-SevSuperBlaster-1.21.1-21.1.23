@@ -1,6 +1,7 @@
 package ca.dsevvv.sevsuperblaster.entity.projectile;
 
 import ca.dsevvv.sevsuperblaster.SevSuperBlaster;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -183,5 +184,25 @@ public class Gunshot extends AbstractArrow {
             double bodyExposed = ((double)1.0F - distance) * (double)Explosion.getSeenPercent(vec3, entity);
             return (float)((bodyExposed * bodyExposed + bodyExposed) / (double)2.0F * (double)7.0F * (double)power + (double)1.0F);
         }
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag compound) {
+        compound.putInt("Damage", damage);
+        compound.putInt("ExplosionSize", explosionSize);
+        compound.putInt("Heal", heal);
+        compound.putFloat("HomingSpeed", homingSpeed);
+        compound.putInt("Target", currentTarget.getId());
+        super.addAdditionalSaveData(compound);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag compound) {
+        damage = compound.getInt("Damage");
+        explosionSize = compound.getInt("ExplosionSize");
+        heal = compound.getInt("Heal");
+        homingSpeed = compound.getFloat("HomingSpeed");
+        currentTarget = (LivingEntity) level().getEntity(compound.getInt("Target"));
+        super.readAdditionalSaveData(compound);
     }
 }

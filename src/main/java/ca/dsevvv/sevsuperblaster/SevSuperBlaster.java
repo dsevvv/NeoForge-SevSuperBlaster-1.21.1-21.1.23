@@ -1,9 +1,12 @@
 package ca.dsevvv.sevsuperblaster;
 
 import ca.dsevvv.sevsuperblaster.block.BlasterBenchBlock;
+import ca.dsevvv.sevsuperblaster.blockentity.BlasterBenchEntity;
 import ca.dsevvv.sevsuperblaster.entity.client.GunshotRenderer;
 import ca.dsevvv.sevsuperblaster.entity.projectile.Gunshot;
 import ca.dsevvv.sevsuperblaster.item.SuperBlasterItem;
+import ca.dsevvv.sevsuperblaster.menu.BlasterBenchMenu;
+import ca.dsevvv.sevsuperblaster.menu.screen.BlasterBenchScreen;
 import ca.dsevvv.sevsuperblaster.particle.provider.BoomParticleProvider;
 import ca.dsevvv.sevsuperblaster.particle.provider.SparkParticleProvider;
 import ca.dsevvv.sevsuperblaster.particle.provider.TrailParticleProvider;
@@ -15,7 +18,12 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -54,11 +62,13 @@ public class SevSuperBlaster
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
+    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, MODID);
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, MODID);
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(BuiltInRegistries.PARTICLE_TYPE, MODID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
     public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENT_TYPES = DeferredRegister.createDataComponents(MODID);
+    public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(BuiltInRegistries.MENU, MODID);
 
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> TRAIL_PARTICLE = PARTICLE_TYPES.register("super_blaster_trail", () -> new SimpleParticleType(false));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> BOOM_PARTICLE = PARTICLE_TYPES.register("boom", () -> new SimpleParticleType(false));
@@ -71,6 +81,14 @@ public class SevSuperBlaster
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Float>> BLASTER_HOMING_SPEED = DATA_COMPONENT_TYPES.register("blaster_homing_speed", () -> DataComponentType.<Float>builder().persistent(Codec.FLOAT).build());
 
     public static final DeferredBlock<Block> BLASTER_BENCH = registerBlock("blaster_bench", () -> new BlasterBenchBlock(BlockBehaviour.Properties.of().noOcclusion()));
+    public static final Supplier<BlockEntityType<BlasterBenchEntity>> BLASTER_BENCH_ENTITY = BLOCK_ENTITY_TYPES.register(
+            "blaster_bench_entity",
+            () -> BlockEntityType.Builder.of(
+                            BlasterBenchEntity::new,
+                            BLASTER_BENCH.get()
+                    )
+                    .build(null)
+    );
     public static final DeferredItem<Item> SUPER_BLASTER = ITEMS.register("super_blaster", () -> new SuperBlasterItem(new Item.Properties()
             .component(BLASTER_LVL, SuperBlasterItem.DEFAULT_LEVEL)
             .component(BLASTER_DMG, SuperBlasterItem.DEFAULT_PROJECTILE_DAMAGE)
@@ -80,6 +98,7 @@ public class SevSuperBlaster
     public static final DeferredItem<Item> GUNSHOT_ITEM = ITEMS.register("gunshot", () -> new Item(new Item.Properties()));
     public static final Supplier<EntityType<Gunshot>> GUNSHOT = ENTITIES.register("gunshot", () -> EntityType.Builder.of(Gunshot::new, MobCategory.MISC)
             .sized(0.25f, 0.25f).build("gunshot"));
+    public static final Supplier<MenuType<BlasterBenchMenu>> BLASTER_MENU = MENU_TYPES.register("blaster_bench_menu", () -> IMenuTypeExtension.create(BlasterBenchMenu::new));
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> BLASTER_TAB = CREATIVE_MODE_TABS.register("sevsuperblaster", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.sevsuperblaster"))
@@ -94,13 +113,16 @@ public class SevSuperBlaster
     public SevSuperBlaster(IEventBus modEventBus, ModContainer modContainer)
     {
         modEventBus.addListener(this::commonSetup);
+        modEventBus.addListener(this::registerScreens);
 
         BLOCKS.register(modEventBus);
+        BLOCK_ENTITY_TYPES.register(modEventBus);
         ITEMS.register(modEventBus);
         ENTITIES.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
         PARTICLE_TYPES.register(modEventBus);
         DATA_COMPONENT_TYPES.register(modEventBus);
+        MENU_TYPES.register(modEventBus);
 
         NeoForge.EVENT_BUS.register(this);
 
@@ -110,6 +132,10 @@ public class SevSuperBlaster
     private void commonSetup(final FMLCommonSetupEvent event)
     {
 
+    }
+
+    private void registerScreens(final RegisterMenuScreensEvent event){
+        event.register(BLASTER_MENU.get(), BlasterBenchScreen::new);
     }
 
     private static <T extends Block> DeferredBlock<T> registerBlock(String name, Supplier<T> block) {

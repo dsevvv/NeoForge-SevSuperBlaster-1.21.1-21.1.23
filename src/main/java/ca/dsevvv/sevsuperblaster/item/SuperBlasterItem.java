@@ -20,14 +20,19 @@ import java.util.List;
 
 public class SuperBlasterItem extends Item {
     public static final int DEFAULT_LEVEL = 1;
-    public static final int DEFAULT_PROJECTILE_DAMAGE = 1;
-    public static final int DEFAULT_EXPLOSION_SIZE = 1;
-    public static final int DEFAULT_HEAL_ON_KILL = 1;
-    public static final float DEFAULT_HOMING_SPEED = 0.1F;
+    public static final int DEFAULT_PROJECTILE_DAMAGE = 0;
+    public static final int DEFAULT_EXPLOSION_SIZE = 0;
+    public static final int DEFAULT_HEAL_ON_KILL = 0;
+    public static final float DEFAULT_HOMING_SPEED = 0.0F;
 
 
     public SuperBlasterItem(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public int getDefaultMaxStackSize() {
+        return 1;
     }
 
     @Override
@@ -57,15 +62,15 @@ public class SuperBlasterItem extends Item {
     }
 
     public static int getProjectileDamage(ItemStack stack) {
-        return stack.get(SevSuperBlaster.BLASTER_DMG);
+        return stack.get(SevSuperBlaster.BLASTER_DMG) >= 1 ? stack.get(SevSuperBlaster.BLASTER_DMG) : 1;
     }
-    
+
     public static void setExplosionSize(ItemStack stack, int explosionSize){
         stack.set(SevSuperBlaster.BLASTER_EXPLOSION_SIZE, explosionSize);
     }
 
     public static int getExplosionSize(ItemStack stack){
-        return stack.get(SevSuperBlaster.BLASTER_EXPLOSION_SIZE);
+        return stack.get(SevSuperBlaster.BLASTER_EXPLOSION_SIZE) >= 1 ? stack.get(SevSuperBlaster.BLASTER_EXPLOSION_SIZE) : 1;
     }
 
     public static void setHealOnKill(ItemStack stack, int healOnKill){
@@ -73,7 +78,7 @@ public class SuperBlasterItem extends Item {
     }
 
     public static int getHealOnKill(ItemStack stack){
-        return stack.get(SevSuperBlaster.BLASTER_HEAL_ON_KILL);
+        return stack.get(SevSuperBlaster.BLASTER_HEAL_ON_KILL) >= 1 ? stack.get(SevSuperBlaster.BLASTER_HEAL_ON_KILL) : 1;
     }
 
     public static void setHomingSpeed(ItemStack stack, float homingSpeed){
@@ -81,7 +86,7 @@ public class SuperBlasterItem extends Item {
     }
 
     public static float getHomingSpeed(ItemStack stack){
-        return stack.get(SevSuperBlaster.BLASTER_HOMING_SPEED);
+        return stack.get(SevSuperBlaster.BLASTER_HOMING_SPEED) >= 0.1f ? stack.get(SevSuperBlaster.BLASTER_HOMING_SPEED) : 0.1f;
     }
 
     @Override

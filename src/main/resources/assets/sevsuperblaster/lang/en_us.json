@@ -3,5 +3,7 @@
   "block.sevsuperblaster.blaster_bench": "Super Blaster Bench-o-matic",
   "item.sevsuperblaster.super_blaster": "The Super Blaster",
   "item.sevsuperblaster.gunshot": "Gunshot",
-  "entity.sevsuperblaster.gunshot": "Blaster Shot"
+  "entity.sevsuperblaster.gunshot": "Blaster Shot",
+  "container.sevsuperblaster.blaster_bench_entity": "Blaster Bench",
+  "blockentity.sevsuperblaster.blaster_bench_entity": "Blaster Bench"
 }

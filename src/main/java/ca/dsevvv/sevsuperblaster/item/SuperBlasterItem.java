@@ -36,6 +36,11 @@ public class SuperBlasterItem extends Item {
     }
 
     @Override
+    public int getMaxStackSize(ItemStack stack) {
+        return 1;
+    }
+
+    @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_RETURN, SoundSource.PLAYERS, 1.0F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
@@ -98,7 +103,7 @@ public class SuperBlasterItem extends Item {
         && stack.get(SevSuperBlaster.BLASTER_HOMING_SPEED) != null){
             tooltipComponents.add(Component.literal("Level: " + stack.get(SevSuperBlaster.BLASTER_LVL)).withColor(0x00ffff));
             tooltipComponents.add(Component.literal(""));
-            tooltipComponents.add(Component.literal("Damage:            " + stack.get(SevSuperBlaster.BLASTER_DMG)).withColor(0xFF0000));
+            tooltipComponents.add(Component.literal("Damage:           " + stack.get(SevSuperBlaster.BLASTER_DMG)).withColor(0xFF0000));
             tooltipComponents.add(Component.literal("Explosion Size:   " + stack.get(SevSuperBlaster.BLASTER_EXPLOSION_SIZE)).withColor(0xffd700));
             tooltipComponents.add(Component.literal("Heal on Kill:       " + stack.get(SevSuperBlaster.BLASTER_HEAL_ON_KILL)).withColor(0x00ff2e));
             tooltipComponents.add(Component.literal("Homing Speed:   " + stack.get(SevSuperBlaster.BLASTER_HOMING_SPEED)).withColor(0xe514e2));

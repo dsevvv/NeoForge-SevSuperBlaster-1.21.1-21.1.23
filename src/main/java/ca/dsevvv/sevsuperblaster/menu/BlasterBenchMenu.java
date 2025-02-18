@@ -84,4 +84,64 @@ public class BlasterBenchMenu extends AbstractContainerMenu {
             this.addSlot(new Slot(playerInventory, i, 4, 26 + i * 18));
         }
     }
+
+    public boolean isSuperBlasterInside(){
+        return blockEntity.inventory.getStackInSlot(0).getItem() == SevSuperBlaster.SUPER_BLASTER.get();
+    }
+
+    public int getBlasterLevel(){
+        if(isSuperBlasterInside()){
+            return blockEntity.inventory.getStackInSlot(0).get(SevSuperBlaster.BLASTER_LVL);
+        }
+        return 0;
+    }
+
+    public int getBlasterDamage(){
+        if(isSuperBlasterInside()){
+            return blockEntity.inventory.getStackInSlot(0).get(SevSuperBlaster.BLASTER_DMG);
+        }
+        return 0;
+    }
+
+    public int getBlasterExplosion(){
+        if(isSuperBlasterInside()){
+            return blockEntity.inventory.getStackInSlot(0).get(SevSuperBlaster.BLASTER_EXPLOSION_SIZE);
+        }
+        return 0;
+    }
+
+    public int getBlasterHeal(){
+        if(isSuperBlasterInside()){
+            return blockEntity.inventory.getStackInSlot(0).get(SevSuperBlaster.BLASTER_HEAL_ON_KILL);
+        }
+        return 0;
+    }
+
+    public float getBlasterSpeed(){
+        if(isSuperBlasterInside()){
+            return blockEntity.inventory.getStackInSlot(0).get(SevSuperBlaster.BLASTER_HOMING_SPEED);
+        }
+        return 0;
+    }
+
+    public int getBlasterCurrentPower(){
+        if(isSuperBlasterInside()){
+            int dmg = blockEntity.inventory.getStackInSlot(0).get(SevSuperBlaster.BLASTER_DMG);
+            int size = blockEntity.inventory.getStackInSlot(0).get(SevSuperBlaster.BLASTER_EXPLOSION_SIZE);
+            int heal = blockEntity.inventory.getStackInSlot(0).get(SevSuperBlaster.BLASTER_HEAL_ON_KILL);
+            float spd = blockEntity.inventory.getStackInSlot(0).get(SevSuperBlaster.BLASTER_HOMING_SPEED);
+            int spdInt = Math.round(spd * 10);
+
+            return dmg + size + heal + spdInt;
+        }
+        return 0;
+    }
+
+    public int getBlasterMaxPower(){
+        if(isSuperBlasterInside()){
+            int lvl = blockEntity.inventory.getStackInSlot(0).get(SevSuperBlaster.BLASTER_LVL);
+            return 10 + ((lvl - 1) * 5);
+        }
+        return 10;
+    }
 }

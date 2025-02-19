@@ -2,6 +2,7 @@ package ca.dsevvv.sevsuperblaster;
 
 import ca.dsevvv.sevsuperblaster.block.BlasterBenchBlock;
 import ca.dsevvv.sevsuperblaster.blockentity.BlasterBenchEntity;
+import ca.dsevvv.sevsuperblaster.entity.client.GunshotModel;
 import ca.dsevvv.sevsuperblaster.entity.client.GunshotRenderer;
 import ca.dsevvv.sevsuperblaster.entity.projectile.Gunshot;
 import ca.dsevvv.sevsuperblaster.item.SuperBlasterItem;
@@ -21,6 +22,7 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
@@ -89,15 +91,10 @@ public class SevSuperBlaster
                     )
                     .build(null)
     );
-    public static final DeferredItem<Item> SUPER_BLASTER = ITEMS.register("super_blaster", () -> new SuperBlasterItem(new Item.Properties()
-            .component(BLASTER_LVL, SuperBlasterItem.DEFAULT_LEVEL)
-            .component(BLASTER_DMG, SuperBlasterItem.DEFAULT_PROJECTILE_DAMAGE)
-            .component(BLASTER_EXPLOSION_SIZE, SuperBlasterItem.DEFAULT_EXPLOSION_SIZE)
-            .component(BLASTER_HEAL_ON_KILL, SuperBlasterItem.DEFAULT_HEAL_ON_KILL)
-            .component(BLASTER_HOMING_SPEED, SuperBlasterItem.DEFAULT_HOMING_SPEED)));
+    public static final DeferredItem<Item> SUPER_BLASTER = ITEMS.register("super_blaster", () -> new SuperBlasterItem(new Item.Properties()));
     public static final DeferredItem<Item> GUNSHOT_ITEM = ITEMS.register("gunshot", () -> new Item(new Item.Properties()));
     public static final Supplier<EntityType<Gunshot>> GUNSHOT = ENTITIES.register("gunshot", () -> EntityType.Builder.of(Gunshot::new, MobCategory.MISC)
-            .sized(0.25f, 0.25f).build("gunshot"));
+            .sized(0.175f, 0.175f).build("gunshot"));
     public static final Supplier<MenuType<BlasterBenchMenu>> BLASTER_MENU = MENU_TYPES.register("blaster_bench_menu", () -> IMenuTypeExtension.create(BlasterBenchMenu::new));
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> BLASTER_TAB = CREATIVE_MODE_TABS.register("sevsuperblaster", () -> CreativeModeTab.builder()
@@ -161,7 +158,17 @@ public class SevSuperBlaster
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
-            EntityRenderers.register(GUNSHOT.get(), GunshotRenderer::new);
+
+        }
+
+        @SubscribeEvent
+        public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event){
+            event.registerEntityRenderer(GUNSHOT.get(), GunshotRenderer::new);
+        }
+
+        @SubscribeEvent
+        public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event){
+            event.registerLayerDefinition(GunshotModel.LAYER_LOCATION, GunshotModel::createBodyLayer);
         }
 
         @SubscribeEvent

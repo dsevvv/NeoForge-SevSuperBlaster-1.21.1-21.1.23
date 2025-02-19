@@ -1,72 +1,34 @@
 package ca.dsevvv.sevsuperblaster.entity.client;
 
 import ca.dsevvv.sevsuperblaster.SevSuperBlaster;
+import ca.dsevvv.sevsuperblaster.entity.projectile.Gunshot;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.projectile.AbstractArrow;
 
-public class GunshotRenderer<T extends AbstractArrow> extends EntityRenderer<T> {
+public class GunshotRenderer<T extends Gunshot> extends EntityRenderer<T> {
+    private static final ResourceLocation TEXTURE_LOCATION = ResourceLocation.fromNamespaceAndPath(SevSuperBlaster.MODID, "textures/entity/gunshot.png");
+    private final GunshotModel model;
 
     public GunshotRenderer(EntityRendererProvider.Context context) {
         super(context);
+        this.model = new GunshotModel(context.bakeLayer(GunshotModel.LAYER_LOCATION));
     }
 
     @Override
-    public ResourceLocation getTextureLocation(T t) {
-        return ResourceLocation.fromNamespaceAndPath(SevSuperBlaster.MODID, "textures/entity/gunshot.png");
+    public ResourceLocation getTextureLocation(Gunshot gunshot) {
+        return TEXTURE_LOCATION;
     }
 
     @Override
-    public void render(T entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
-        poseStack.pushPose();
-        poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTicks, entity.xRotO, entity.getXRot())));
-        int i = 0;
-        float f = 0.0F;
-        float f1 = 0.5F;
-        float f2 = 0.0F;
-        float f3 = 0.15625F;
-        float f4 = 0.0F;
-        float f5 = 0.15625F;
-        float f6 = 0.15625F;
-        float f7 = 0.3125F;
-        float f8 = 0.05625F;
-
-        poseStack.mulPose(Axis.XP.rotationDegrees(45.0F));
-        poseStack.scale(0.05625F, 0.05625F, 0.05625F);
-        poseStack.translate(-4.0F, 0.0F, 0.0F);
-        VertexConsumer vertexconsumer = buffer.getBuffer(RenderType.entityCutout(this.getTextureLocation(entity)));
-        PoseStack.Pose posestack$pose = poseStack.last();
-        this.vertex(posestack$pose, vertexconsumer, -7, -2, -2, 0.0F, 0.15625F, -1, 0, 0, packedLight);
-        this.vertex(posestack$pose, vertexconsumer, -7, -2, 2, 0.15625F, 0.15625F, -1, 0, 0, packedLight);
-        this.vertex(posestack$pose, vertexconsumer, -7, 2, 2, 0.15625F, 0.3125F, -1, 0, 0, packedLight);
-        this.vertex(posestack$pose, vertexconsumer, -7, 2, -2, 0.0F, 0.3125F, -1, 0, 0, packedLight);
-        this.vertex(posestack$pose, vertexconsumer, -7, 2, -2, 0.0F, 0.15625F, 1, 0, 0, packedLight);
-        this.vertex(posestack$pose, vertexconsumer, -7, 2, 2, 0.15625F, 0.15625F, 1, 0, 0, packedLight);
-        this.vertex(posestack$pose, vertexconsumer, -7, -2, 2, 0.15625F, 0.3125F, 1, 0, 0, packedLight);
-        this.vertex(posestack$pose, vertexconsumer, -7, -2, -2, 0.0F, 0.3125F, 1, 0, 0, packedLight);
-
-        for(int j = 0; j < 4; ++j) {
-            poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
-            this.vertex(posestack$pose, vertexconsumer, -8, -2, 0, 0.0F, 0.0F, 0, 1, 0, packedLight);
-            this.vertex(posestack$pose, vertexconsumer, 8, -2, 0, 0.5F, 0.0F, 0, 1, 0, packedLight);
-            this.vertex(posestack$pose, vertexconsumer, 8, 2, 0, 0.5F, 0.15625F, 0, 1, 0, packedLight);
-            this.vertex(posestack$pose, vertexconsumer, -8, 2, 0, 0.0F, 0.15625F, 0, 1, 0, packedLight);
-        }
-
-        poseStack.popPose();
-        super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
-    }
-
-    public void vertex(PoseStack.Pose pose, VertexConsumer consumer, int x, int y, int z, float u, float v, int normalX, int normalY, int normalZ, int packedLight) {
-        consumer.addVertex(pose, (float)x, (float)y, (float)z).setColor(-1).setUv(u, v).setOverlay(OverlayTexture.NO_OVERLAY).setLight(packedLight).setNormal(pose, (float)normalX, (float)normalZ, (float)normalY);
+    public void render(T p_entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(this.model.renderType(TEXTURE_LOCATION));
+        model.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
+        poseStack.scale(1f,1f,1f);
+        super.render(p_entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 }

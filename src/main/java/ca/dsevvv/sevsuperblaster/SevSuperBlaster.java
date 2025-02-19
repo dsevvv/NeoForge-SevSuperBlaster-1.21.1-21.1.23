@@ -11,31 +11,38 @@ import ca.dsevvv.sevsuperblaster.menu.screen.BlasterBenchScreen;
 import ca.dsevvv.sevsuperblaster.particle.provider.BoomParticleProvider;
 import ca.dsevvv.sevsuperblaster.particle.provider.SparkParticleProvider;
 import ca.dsevvv.sevsuperblaster.particle.provider.TrailParticleProvider;
+import ca.dsevvv.sevsuperblaster.payload.UpdateBlasterBench;
 import com.mojang.serialization.Codec;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.handlers.ServerPayloadHandler;
+import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.api.distmarker.Dist;
@@ -111,6 +118,7 @@ public class SevSuperBlaster
     {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::registerScreens);
+        modEventBus.addListener(this::registerPayload);
 
         BLOCKS.register(modEventBus);
         BLOCK_ENTITY_TYPES.register(modEventBus);
@@ -133,6 +141,19 @@ public class SevSuperBlaster
 
     private void registerScreens(final RegisterMenuScreensEvent event){
         event.register(BLASTER_MENU.get(), BlasterBenchScreen::new);
+    }
+
+    private void registerPayload(final RegisterPayloadHandlersEvent event){
+        final PayloadRegistrar registrar = event.registrar("1");
+
+        registrar.playBidirectional(
+                UpdateBlasterBench.TYPE,
+                UpdateBlasterBench.STREAM_CODEC,
+                new DirectionalPayloadHandler<>(
+                        ClientPayloadHandler::handleDataOnMain,
+                        ServerPayloadHandler::handleDataOnMain
+                )
+        );
     }
 
     private static <T extends Block> DeferredBlock<T> registerBlock(String name, Supplier<T> block) {
@@ -176,6 +197,47 @@ public class SevSuperBlaster
             event.registerSpriteSet(TRAIL_PARTICLE.get(), TrailParticleProvider::new);
             event.registerSpriteSet(BOOM_PARTICLE.get(), BoomParticleProvider::new);
             event.registerSpriteSet(SPARK_PARTICLE.get(), SparkParticleProvider::new);
+        }
+    }
+
+    public class ClientPayloadHandler{
+        public static void handleDataOnMain(final UpdateBlasterBench data, final IPayloadContext context){
+        }
+    }
+
+    public class ServerPayloadHandler{
+        public static void handleDataOnMain(final UpdateBlasterBench data, final IPayloadContext context){
+            Level level = context.player().level();
+            BlasterBenchEntity blockEntity = (BlasterBenchEntity) level.getBlockEntity(data.pos());
+
+            ItemStack stack = blockEntity.inventory.getStackInSlot(0);
+
+            switch (data.flag()){
+                case 0:
+                    stack.set(SevSuperBlaster.BLASTER_LVL, data.value());
+                    break;
+                case 1:
+                    stack.set(SevSuperBlaster.BLASTER_DMG, data.value());
+                    break;
+                case 2:
+                    stack.set(SevSuperBlaster.BLASTER_EXPLOSION_SIZE, data.value());
+                    break;
+                case 3:
+                    stack.set(SevSuperBlaster.BLASTER_HEAL_ON_KILL, data.value());
+                    break;
+                case 4:
+                    float spd = Float.parseFloat(String.format("%d", data.value()));
+                    stack.set(SevSuperBlaster.BLASTER_HOMING_SPEED, spd / 10f);
+                    break;
+                case 5:
+                    Inventory pInv = context.player().getInventory();
+                    for(int i = 0; i < data.value(); i++){
+                        int slot = pInv.findSlotMatchingItem(Items.DIAMOND.getDefaultInstance());
+                        pInv.removeItem(slot, 1);
+                    }
+                default:
+                    break;
+            }
         }
     }
 }

@@ -11,21 +11,32 @@ import net.minecraft.world.entity.player.Inventory;
 public class BlasterBenchScreen extends AbstractContainerScreen<BlasterBenchMenu> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(SevSuperBlaster.MODID, "textures/gui/container/blaster_bench_ui.png");
 
+    private int simDmg;
+    private int simExpl;
+    private int simHeal;
+    private float simSpd;
+
     public BlasterBenchScreen(BlasterBenchMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
 
-        this.inventoryLabelY = 10000;
-        this.titleLabelY = 10000;
+        this.inventoryLabelY = 9999;    //pce
+        this.titleLabelY = 9999;        //cya later
         this.imageHeight = 210;
         this.imageWidth = 186;
+        this.simDmg = menu.getBlasterDamage();
+        this.simExpl = menu.getBlasterExplosion();
+        this.simHeal = menu.getBlasterHeal();
+        this.simSpd = menu.getBlasterSpeed();
     }
-
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
+
+        if(!menu.isSuperBlasterInside())
+            return;
 
         renderUpgrade(guiGraphics, mouseX, mouseY);
         renderLevel(guiGraphics, mouseX, mouseY);
@@ -36,13 +47,39 @@ public class BlasterBenchScreen extends AbstractContainerScreen<BlasterBenchMenu
         renderHomingSlider(guiGraphics, mouseX, mouseY);
     }
 
-    private void renderUpgrade(GuiGraphics guiGraphics, int mouseX, int mouseY){
-        if(!menu.isSuperBlasterInside())
-            return;
+    @Override
+    protected void renderBg(GuiGraphics guiGraphics, float v, int i, int i1) {
+        guiGraphics.blit(TEXTURE, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+    }
 
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if(!menu.isSuperBlasterInside())
+            return super.mouseClicked(mouseX, mouseY, button);
+
+        clickLevelUp(mouseX, mouseY);
+
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    private void clickLevelUp(double mouseX, double mouseY){
         int offsetX = 120;
         int offsetY = 10;
         int boxSize = 12;
+
+        if(mouseX >= this.leftPos + offsetX && mouseX <= this.leftPos + offsetX + boxSize
+        && mouseY >= this.topPos + offsetY && mouseY <= this.topPos + offsetY + boxSize){
+            menu.levelUp();
+        }
+    }
+
+    private void renderUpgrade(GuiGraphics guiGraphics, int mouseX, int mouseY){
+        int offsetX = 120;
+        int offsetY = 10;
+        int boxSize = 12;
+
+        if(!menu.playerUpgrade())
+            return;
 
         //is mouse inside upgrade box?
         if(mouseX >= this.leftPos + offsetX && mouseX <= this.leftPos + offsetX + boxSize
@@ -55,102 +92,84 @@ public class BlasterBenchScreen extends AbstractContainerScreen<BlasterBenchMenu
     }
 
     private void renderLevel(GuiGraphics guiGraphics, int mouseX, int mouseY){
-        if(!menu.isSuperBlasterInside())
-            return;
-
         for(int i = 0; i < menu.getBlasterLevel(); i++){
             guiGraphics.blit(TEXTURE, this.leftPos + 78 + (i * 12), this.topPos + 30, 0, 243, 8, 8);
         }
     }
 
     private void renderDamageSlider(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        if(!menu.isSuperBlasterInside())
-            return;
+        guiGraphics.drawCenteredString(this.font, "Damage", this.leftPos + 92, this.topPos + 48, 0xFF0000);
 
-        guiGraphics.drawCenteredString(this.font, "Damage", getGuiLeft() + 92, getGuiTop() + 48, 0xFF0000);
-
-        if(menu.isSuperBlasterInside()){
-            int dmg = menu.getBlasterDamage();
-            guiGraphics.drawCenteredString(this.font, String.valueOf(dmg), this.leftPos + 164, this.topPos + 48, 0xFF0000);
-        }
+        int dmg = menu.getBlasterDamage();
+        guiGraphics.drawCenteredString(this.font, String.valueOf(dmg), this.leftPos + 164, this.topPos + 48, 0xFF0000);
+        renderSlider(guiGraphics, mouseX, mouseY, 60, dmg);
     }
 
     private void renderExplosionSlider(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        if(!menu.isSuperBlasterInside())
-            return;
+        guiGraphics.drawCenteredString(this.font, "Explosion Size", this.leftPos + 92, this.topPos + 84, 0xffd700);
 
-        guiGraphics.drawCenteredString(this.font, "Explosion Size", getGuiLeft() + 92, getGuiTop() + 84, 0xffd700);
-
-        if(menu.isSuperBlasterInside()){
-            int expl = menu.getBlasterExplosion();
-            guiGraphics.drawCenteredString(this.font, String.valueOf(expl), this.leftPos + 164, this.topPos + 84, 0xffd700);
-        }
+        int expl = menu.getBlasterExplosion();
+        guiGraphics.drawCenteredString(this.font, String.valueOf(expl), this.leftPos + 164, this.topPos + 84, 0xffd700);
+        renderSlider(guiGraphics, mouseX, mouseY, 96, expl);
     }
 
     private void renderHealSlider(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        if(!menu.isSuperBlasterInside())
-            return;
+        guiGraphics.drawCenteredString(this.font, "Heal on Kill", this.leftPos + 92, this.topPos + 120, 0x00ff2e);
 
-        guiGraphics.drawCenteredString(this.font, "Heal on Kill", getGuiLeft() + 92, getGuiTop() + 120, 0x00ff2e);
-
-        if(menu.isSuperBlasterInside()){
-            int heal = menu.getBlasterHeal();
-            guiGraphics.drawCenteredString(this.font, String.valueOf(heal), this.leftPos + 164, this.topPos + 120, 0x00ff2e);
-        }
+        int heal = menu.getBlasterHeal();
+        guiGraphics.drawCenteredString(this.font, String.valueOf(heal), this.leftPos + 164, this.topPos + 120, 0x00ff2e);
+        renderSlider(guiGraphics, mouseX, mouseY, 132, heal);
     }
 
     private void renderHomingSlider(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        if(!menu.isSuperBlasterInside())
-            return;
+        guiGraphics.drawCenteredString(this.font, "Homing Speed",  this.leftPos + 92, this.topPos + 156, 0xe514e2);
 
-        guiGraphics.drawCenteredString(this.font, "Homing Speed", getGuiLeft() + 92, getGuiTop() + 156, 0xe514e2);
-
-        if(menu.isSuperBlasterInside()){
-            float homing = menu.getBlasterSpeed();
-            guiGraphics.drawCenteredString(this.font, String.valueOf(homing), this.leftPos + 164, this.topPos + 156, 0xe514e2);
-        }
+        float spd = menu.getBlasterSpeed();
+        int spdInt = Math.round(spd * 10);
+        guiGraphics.drawCenteredString(this.font, String.valueOf(spdInt), this.leftPos + 164, this.topPos + 156, 0xe514e2);
+        renderSlider(guiGraphics, mouseX, mouseY, 168, spdInt);
     }
 
     private void renderConfirm(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        int boxWidth = 53;
+        int boxWidth = 54;
         int boxHeight = 16;
         int offsetX = 79;
         int offsetY = 189;
 
-        if(menu.isSuperBlasterInside()){
-            if(menu.getBlasterCurrentPower() < menu.getBlasterMaxPower()){
-                guiGraphics.drawCenteredString(this.font, String.format("%d/%d", menu.getBlasterCurrentPower(), menu.getBlasterMaxPower()), this.leftPos + 157, this.topPos + 193, 0xffd700);
-            } else if (menu.getBlasterCurrentPower() > menu.getBlasterMaxPower()) {
-                guiGraphics.drawCenteredString(this.font, String.format("%d/%d", menu.getBlasterCurrentPower(), menu.getBlasterMaxPower()), this.leftPos + 157, this.topPos + 193, 0xFF0000);
-            } else if (menu.getBlasterCurrentPower() == menu.getBlasterMaxPower()) {
-                guiGraphics.drawCenteredString(this.font, String.format("%d/%d", menu.getBlasterCurrentPower(), menu.getBlasterMaxPower()), this.leftPos + 157, this.topPos + 193, 0x2ff314);
-            }
+        if(menu.getBlasterCurrentPower() < menu.getBlasterMaxPower()){
+            guiGraphics.drawCenteredString(this.font, String.format("%d/%d", menu.getBlasterCurrentPower(), menu.getBlasterMaxPower()), this.leftPos + 157, this.topPos + 193, 0xffd700);
+        } else if (menu.getBlasterCurrentPower() > menu.getBlasterMaxPower()) {
+            guiGraphics.drawCenteredString(this.font, String.format("%d/%d", menu.getBlasterCurrentPower(), menu.getBlasterMaxPower()), this.leftPos + 157, this.topPos + 193, 0xFF0000);
+        } else if (menu.getBlasterCurrentPower() == menu.getBlasterMaxPower()) {
+            guiGraphics.drawCenteredString(this.font, String.format("%d/%d", menu.getBlasterCurrentPower(), menu.getBlasterMaxPower()), this.leftPos + 157, this.topPos + 193, 0x2ff314);
+        }
 
-            //is mouse inside confirm box?
-            if(mouseX >= this.leftPos + offsetX && mouseX <= this.leftPos + offsetX + boxWidth
-            && mouseY >= this.topPos + offsetY && mouseY <= this.topPos + offsetY + boxHeight){
-                guiGraphics.blit(TEXTURE, this.leftPos + offsetX, this.topPos + offsetY, 28,230, boxWidth, boxHeight);
+        //is mouse inside confirm box?
+        if(mouseX >= this.leftPos + offsetX && mouseX <= this.leftPos + offsetX + boxWidth
+        && mouseY >= this.topPos + offsetY && mouseY <= this.topPos + offsetY + boxHeight){
+            guiGraphics.blit(TEXTURE, this.leftPos + offsetX, this.topPos + offsetY, 28,230, boxWidth, boxHeight);
+        }
+        else{
+            //red or green confirm button
+            if(menu.getBlasterCurrentPower() < menu.getBlasterMaxPower()
+            || menu.getBlasterCurrentPower() > menu.getBlasterMaxPower()){
+                guiGraphics.blit(TEXTURE, this.leftPos + offsetX, this.topPos + offsetY, 83,213, boxWidth, boxHeight);
             }
             else{
-                //red or green confirm button
-                if(menu.getBlasterCurrentPower() < menu.getBlasterMaxPower()
-                || menu.getBlasterCurrentPower() > menu.getBlasterMaxPower()){
-                    guiGraphics.blit(TEXTURE, this.leftPos + offsetX, this.topPos + offsetY, 83,213, boxWidth, boxHeight);
-                }
-                else{
-                    guiGraphics.blit(TEXTURE, this.leftPos + offsetX, this.topPos + offsetY, 28,213, boxWidth, boxHeight);
-                }
+                guiGraphics.blit(TEXTURE, this.leftPos + offsetX, this.topPos + offsetY, 28,213, boxWidth, boxHeight);
             }
         }
     }
 
-    @Override
-    protected void renderBg(GuiGraphics guiGraphics, float v, int i, int i1) {
-        guiGraphics.blit(TEXTURE, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
-    }
+    private void renderSlider(GuiGraphics guiGraphics, int mouseX, int mouseY, int sliderY, int sliderLvl){
+        int texX = 26 + (sliderLvl * 14);
 
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        return super.mouseClicked(mouseX, mouseY, button);
+        if(mouseY >=  this.topPos + sliderY && mouseY <= this.topPos + sliderY + 14
+        && mouseX >= this.leftPos + texX    && mouseX <= this.leftPos + texX + 12){
+            guiGraphics.blit(TEXTURE, this.leftPos + texX, this.topPos + sliderY, 14,213, 12, 15);
+        }
+        else{
+            guiGraphics.blit(TEXTURE, this.leftPos + texX, this.topPos + sliderY, 0 ,213, 12, 15);
+        }
     }
 }

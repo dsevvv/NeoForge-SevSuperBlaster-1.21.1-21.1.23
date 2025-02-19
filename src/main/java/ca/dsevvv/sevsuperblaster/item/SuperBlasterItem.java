@@ -9,6 +9,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.phys.Vec3;
@@ -28,6 +29,19 @@ public class SuperBlasterItem extends Item {
 
     public SuperBlasterItem(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+        if(stack.get(SevSuperBlaster.BLASTER_LVL) == null){
+            stack.set(SevSuperBlaster.BLASTER_LVL, DEFAULT_LEVEL);
+            stack.set(SevSuperBlaster.BLASTER_DMG, DEFAULT_PROJECTILE_DAMAGE);
+            stack.set(SevSuperBlaster.BLASTER_EXPLOSION_SIZE, DEFAULT_EXPLOSION_SIZE);
+            stack.set(SevSuperBlaster.BLASTER_HEAL_ON_KILL, DEFAULT_HEAL_ON_KILL);
+            stack.set(SevSuperBlaster.BLASTER_HOMING_SPEED, DEFAULT_HOMING_SPEED);
+        }
+
+        super.inventoryTick(stack, level, entity, slotId, isSelected);
     }
 
     @Override
@@ -101,12 +115,16 @@ public class SuperBlasterItem extends Item {
         && stack.get(SevSuperBlaster.BLASTER_EXPLOSION_SIZE) != null
         && stack.get(SevSuperBlaster.BLASTER_HEAL_ON_KILL) != null
         && stack.get(SevSuperBlaster.BLASTER_HOMING_SPEED) != null){
+            float spd = stack.get(SevSuperBlaster.BLASTER_HOMING_SPEED);
+            int spdInt = Math.round(spd * 10);
+
+            tooltipComponents.add(Component.literal(""));
             tooltipComponents.add(Component.literal("Level: " + stack.get(SevSuperBlaster.BLASTER_LVL)).withColor(0x00ffff));
             tooltipComponents.add(Component.literal(""));
-            tooltipComponents.add(Component.literal("Damage:           " + stack.get(SevSuperBlaster.BLASTER_DMG)).withColor(0xFF0000));
+            tooltipComponents.add(Component.literal("Damage:            " + stack.get(SevSuperBlaster.BLASTER_DMG)).withColor(0xFF0000));
             tooltipComponents.add(Component.literal("Explosion Size:   " + stack.get(SevSuperBlaster.BLASTER_EXPLOSION_SIZE)).withColor(0xffd700));
             tooltipComponents.add(Component.literal("Heal on Kill:       " + stack.get(SevSuperBlaster.BLASTER_HEAL_ON_KILL)).withColor(0x00ff2e));
-            tooltipComponents.add(Component.literal("Homing Speed:   " + stack.get(SevSuperBlaster.BLASTER_HOMING_SPEED)).withColor(0xe514e2));
+            tooltipComponents.add(Component.literal("Speed:             " + spdInt).withColor(0xe514e2));
         }
 
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);

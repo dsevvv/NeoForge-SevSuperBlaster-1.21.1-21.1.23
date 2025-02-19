@@ -26,7 +26,7 @@ public class BlasterBenchEntity extends BlockEntity implements MenuProvider {
     public final ItemStackHandler inventory = new ItemStackHandler(SIZE){
         @Override
         protected int getStackLimit(int slot, ItemStack stack) {
-            return 1;
+            return SIZE;
         }
 
         @Override

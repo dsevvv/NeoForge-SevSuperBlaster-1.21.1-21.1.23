@@ -18,6 +18,8 @@ public class GunshotKillEvent {
         LogUtils.getLogger().info("Calling Event from Server");
 
         if(event.getSource().getDirectEntity() instanceof  Gunshot gunshot){
+            if(gunshot.getOwner() == null || !gunshot.getOwner().isAlive())
+                return;
             if(gunshot.getOwner() instanceof Player player){
                 player.heal(gunshot.getHeal());
             }

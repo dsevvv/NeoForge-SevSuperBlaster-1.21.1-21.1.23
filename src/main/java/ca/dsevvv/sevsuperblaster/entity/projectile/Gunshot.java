@@ -86,9 +86,9 @@ public class Gunshot extends AbstractArrow {
                         0f,0f,0f);
             }
 
-                                                            // Create a "star explosion" effect for each ring
-            for (int j = 0; j < 6; j++) {                   // 6 points for the star
-                double starAngle = Math.toRadians(j * 60);  // Spread star points evenly
+                                                            // Create a "dust explosion" effect for each ring
+            for (int j = 0; j < 6; j++) {                   // 6 points of dust
+                double starAngle = Math.toRadians(j * 60);  // Spread dust points evenly
                 double xStar = Math.cos(starAngle) * (ringRadius + 0.5);
                 double zStar = Math.sin(starAngle) * (ringRadius + 0.5);
 
@@ -98,6 +98,7 @@ public class Gunshot extends AbstractArrow {
             }
         }
     }
+
 
     private void trailParticles(){
         double angle = tickCount * 0.3;             // Increment angle over time for spiral effect

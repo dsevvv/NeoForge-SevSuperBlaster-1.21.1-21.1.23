@@ -6,10 +6,13 @@ import ca.dsevvv.sevsuperblaster.payload.UpdateBlasterBench;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundContainerSlotStateChangedPacket;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -22,7 +25,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 public class BlasterBenchMenu extends AbstractContainerMenu {
     public final BlasterBenchEntity blockEntity;
     private final Level level;
-    private final Player player;
+    public final Player player;
     private final int id;
 
     public BlasterBenchMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
@@ -160,6 +163,15 @@ public class BlasterBenchMenu extends AbstractContainerMenu {
         return player.getInventory().countItem(Items.DIAMOND) >= 10;
     }
 
+    public void updateBlaster(int dmg, int expl, int heal, float spd){
+        if(isSuperBlasterInside() && level.isClientSide()){
+            PacketDistributor.sendToServer(new UpdateBlasterBench(blockEntity.getBlockPos(), blockEntity.getBlockState(), dmg, 1));
+            PacketDistributor.sendToServer(new UpdateBlasterBench(blockEntity.getBlockPos(), blockEntity.getBlockState(), expl, 2));
+            PacketDistributor.sendToServer(new UpdateBlasterBench(blockEntity.getBlockPos(), blockEntity.getBlockState(), heal, 3));
+            PacketDistributor.sendToServer(new UpdateBlasterBench(blockEntity.getBlockPos(), blockEntity.getBlockState(), Math.round(spd * 10), 4));
+        }
+    }
+
     public void levelUp(){
         if(isSuperBlasterInside() && level.isClientSide()){
             ItemStack stack = blockEntity.inventory.getStackInSlot(0);
@@ -181,6 +193,7 @@ public class BlasterBenchMenu extends AbstractContainerMenu {
                 }
                 stack.set(SevSuperBlaster.BLASTER_LVL, currentLvl + 1);
                 blockEntity.inventory.setStackInSlot(0, stack);
+                player.level().playSound(player, blockEntity.getBlockPos(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS);
                 PacketDistributor.sendToServer(new UpdateBlasterBench(blockEntity.getBlockPos(), blockEntity.getBlockState(), currentLvl + 1, 0));
                 PacketDistributor.sendToServer(new UpdateBlasterBench(blockEntity.getBlockPos(), blockEntity.getBlockState(), 10, 5));
             }

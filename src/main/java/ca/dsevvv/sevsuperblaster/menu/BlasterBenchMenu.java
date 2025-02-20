@@ -179,23 +179,21 @@ public class BlasterBenchMenu extends AbstractContainerMenu {
             final int currentLvl = stack.get(SevSuperBlaster.BLASTER_LVL) != null ? stack.get(SevSuperBlaster.BLASTER_LVL) : 1;
 
             if(currentLvl == 5){
+                player.level().playSound(player, blockEntity.getBlockPos(), SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS);
                 player.sendSystemMessage(Component.literal("Failed to Upgrade: Cannot Exceed Level 5").withColor(0xFF0000));
                 return;
             }
 
-            if(pInv.countItem(Items.DIAMOND) < 10){
-                player.sendSystemMessage(Component.literal("Failed to Upgrade: 10 Diamond Required for Upgrade.").withColor(0xFF0000));
-            }
-            else{
-                for(int i = 0; i < 10; i++){
-                    int slot = pInv.findSlotMatchingItem(Items.DIAMOND.getDefaultInstance());
-                    pInv.removeItem(slot, 1);
-                }
+            if(playerUpgrade()){
                 stack.set(SevSuperBlaster.BLASTER_LVL, currentLvl + 1);
                 blockEntity.inventory.setStackInSlot(0, stack);
                 player.level().playSound(player, blockEntity.getBlockPos(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS);
                 PacketDistributor.sendToServer(new UpdateBlasterBench(blockEntity.getBlockPos(), blockEntity.getBlockState(), currentLvl + 1, 0));
                 PacketDistributor.sendToServer(new UpdateBlasterBench(blockEntity.getBlockPos(), blockEntity.getBlockState(), 10, 5));
+            }
+            else{
+                player.level().playSound(player, blockEntity.getBlockPos(), SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS);
+                player.sendSystemMessage(Component.literal("Failed to Upgrade: 10 Diamonds Required for Upgrade.").withColor(0xFF0000));
             }
         }
     }

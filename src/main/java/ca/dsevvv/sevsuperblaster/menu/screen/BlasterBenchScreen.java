@@ -2,7 +2,6 @@ package ca.dsevvv.sevsuperblaster.menu.screen;
 
 import ca.dsevvv.sevsuperblaster.SevSuperBlaster;
 import ca.dsevvv.sevsuperblaster.menu.BlasterBenchMenu;
-import com.mojang.logging.LogUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;

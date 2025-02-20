@@ -145,6 +145,10 @@ public class Gunshot extends AbstractArrow {
         this.heal = heal;
     }
 
+    public int getHeal(){
+        return heal;
+    }
+
     public void setHomingSpeed(float homingSpeed){
         this.homingSpeed = homingSpeed;
     }
@@ -179,7 +183,8 @@ public class Gunshot extends AbstractArrow {
         compound.putInt("ExplosionSize", explosionSize);
         compound.putInt("Heal", heal);
         compound.putFloat("HomingSpeed", homingSpeed);
-        compound.putInt("Target", currentTarget.getId());
+        if(currentTarget != null)
+            compound.putInt("Target", currentTarget.getId());
         super.addAdditionalSaveData(compound);
     }
 
@@ -189,7 +194,8 @@ public class Gunshot extends AbstractArrow {
         explosionSize = compound.getInt("ExplosionSize");
         heal = compound.getInt("Heal");
         homingSpeed = compound.getFloat("HomingSpeed");
-        currentTarget = (LivingEntity) level().getEntity(compound.getInt("Target"));
+        if(compound.contains("Target"))
+            currentTarget = (LivingEntity) level().getEntity(compound.getInt("Target"));
         super.readAdditionalSaveData(compound);
     }
 

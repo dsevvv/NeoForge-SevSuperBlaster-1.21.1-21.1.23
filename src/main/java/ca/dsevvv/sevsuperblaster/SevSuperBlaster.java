@@ -5,6 +5,7 @@ import ca.dsevvv.sevsuperblaster.blockentity.BlasterBenchEntity;
 import ca.dsevvv.sevsuperblaster.entity.client.GunshotModel;
 import ca.dsevvv.sevsuperblaster.entity.client.GunshotRenderer;
 import ca.dsevvv.sevsuperblaster.entity.projectile.Gunshot;
+import ca.dsevvv.sevsuperblaster.event.GunshotKillEvent;
 import ca.dsevvv.sevsuperblaster.item.SuperBlasterItem;
 import ca.dsevvv.sevsuperblaster.menu.BlasterBenchMenu;
 import ca.dsevvv.sevsuperblaster.menu.screen.BlasterBenchScreen;
@@ -13,27 +14,22 @@ import ca.dsevvv.sevsuperblaster.particle.provider.SparkParticleProvider;
 import ca.dsevvv.sevsuperblaster.particle.provider.TrailParticleProvider;
 import ca.dsevvv.sevsuperblaster.payload.UpdateBlasterBench;
 import com.mojang.serialization.Codec;
-import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.handlers.ServerPayloadHandler;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -129,6 +125,7 @@ public class SevSuperBlaster
         MENU_TYPES.register(modEventBus);
 
         NeoForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.register(new GunshotKillEvent());
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }

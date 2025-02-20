@@ -111,7 +111,6 @@ public class SevSuperBlaster
             .displayItems((parameters, output) -> {
                 output.accept(SUPER_BLASTER.get());
                 output.accept(BLASTER_BENCH.get());
-                output.accept(GUNSHOT_ITEM.get());
             }).build());
 
     public SevSuperBlaster(IEventBus modEventBus, ModContainer modContainer)
@@ -213,22 +212,28 @@ public class SevSuperBlaster
             ItemStack stack = blockEntity.inventory.getStackInSlot(0);
 
             switch (data.flag()){
+                //change blaster lvl
                 case 0:
                     stack.set(SevSuperBlaster.BLASTER_LVL, data.value());
                     break;
+                //change blaster dmg
                 case 1:
                     stack.set(SevSuperBlaster.BLASTER_DMG, data.value());
                     break;
+                //change blaster explosion size
                 case 2:
                     stack.set(SevSuperBlaster.BLASTER_EXPLOSION_SIZE, data.value());
                     break;
+                //change blaster heal
                 case 3:
                     stack.set(SevSuperBlaster.BLASTER_HEAL_ON_KILL, data.value());
                     break;
+                //change blaster homing speed
                 case 4:
                     float spd = Float.parseFloat(String.format("%d", data.value()));
                     stack.set(SevSuperBlaster.BLASTER_HOMING_SPEED, spd / 10f);
                     break;
+                //remove diamonds
                 case 5:
                     Inventory pInv = context.player().getInventory();
                     for(int i = 0; i < data.value(); i++){

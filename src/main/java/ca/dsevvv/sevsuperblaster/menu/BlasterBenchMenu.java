@@ -172,7 +172,6 @@ public class BlasterBenchMenu extends AbstractContainerMenu {
     public void levelUp(){
         if(isSuperBlasterInside() && level.isClientSide()){
             ItemStack stack = blockEntity.inventory.getStackInSlot(0);
-            Inventory pInv = player.getInventory();
             final int currentLvl = stack.get(SevSuperBlaster.BLASTER_LVL) != null ? stack.get(SevSuperBlaster.BLASTER_LVL) : 1;
 
             if(currentLvl == 5){
@@ -182,8 +181,6 @@ public class BlasterBenchMenu extends AbstractContainerMenu {
             }
 
             if(playerUpgrade()){
-                stack.set(SevSuperBlaster.BLASTER_LVL, currentLvl + 1);
-                blockEntity.inventory.setStackInSlot(0, stack);
                 player.level().playSound(player, blockEntity.getBlockPos(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS);
                 PacketDistributor.sendToServer(new UpdateBlasterBench(blockEntity.getBlockPos(), blockEntity.getBlockState(), currentLvl + 1, 0));
                 PacketDistributor.sendToServer(new UpdateBlasterBench(blockEntity.getBlockPos(), blockEntity.getBlockState(), 10, 5));
@@ -194,4 +191,6 @@ public class BlasterBenchMenu extends AbstractContainerMenu {
             }
         }
     }
+
+
 }

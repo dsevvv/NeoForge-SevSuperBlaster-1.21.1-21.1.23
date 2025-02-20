@@ -173,9 +173,9 @@ public class Gunshot extends AbstractArrow {
     }
 
     @Override
-    public void onClientRemoval() {
+    public void onRemovedFromLevel() {
         explosionParticles();
-        super.onClientRemoval();
+        super.onRemovedFromLevel();
     }
 
     @Override
